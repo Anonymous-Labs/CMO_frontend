@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { apiClient } from "../../lib/api";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,27 +18,11 @@ export default function Login() {
     setError("");
 
     try {
-      const response = await fetch("/api/v1/auth/access-token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          username: email,
-          password: password,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("token", data.access_token);
-        router.push("/dashboard");
-      } else {
-        const errorData = await response.json();
-        setError(errorData.detail || "Login failed");
-      }
+      const data = await apiClient.login(email, password);
+      localStorage.setItem("token", data.access_token);
+      router.push("/dashboard");
     } catch (err) {
-      setError("Network error. Please try again.");
+      setError(err instanceof Error ? err.message : "Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }

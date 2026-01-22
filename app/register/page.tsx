@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { apiClient } from "../../lib/api";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -40,26 +41,14 @@ export default function Register() {
     }
 
     try {
-      const response = await fetch("/api/v1/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          full_name: formData.fullName,
-        }),
+      await apiClient.register({
+        email: formData.email,
+        password: formData.password,
+        full_name: formData.fullName,
       });
-
-      if (response.ok) {
-        router.push("/login?message=Registration successful! Please log in.");
-      } else {
-        const errorData = await response.json();
-        setError(errorData.detail || "Registration failed");
-      }
+      router.push("/login?message=Registration successful! Please log in.");
     } catch (err) {
-      setError("Network error. Please try again.");
+      setError(err instanceof Error ? err.message : "Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
