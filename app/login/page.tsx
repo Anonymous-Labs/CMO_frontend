@@ -26,7 +26,7 @@ export default function Login() {
     try {
       const data = await apiClient.login(email, password);
       localStorage.setItem("token", data.access_token);
-      router.push("/dashboard");
+      router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Network error. Please try again.");
     } finally {
